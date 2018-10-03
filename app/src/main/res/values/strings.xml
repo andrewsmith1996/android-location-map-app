@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Location and Maps</string>
+    <string name="location_default">No location</string>
+</resources>
