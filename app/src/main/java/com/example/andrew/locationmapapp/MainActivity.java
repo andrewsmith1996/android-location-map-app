@@ -1,6 +1,8 @@
 package com.example.andrew.locationmapapp;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,7 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.EditText;
 
 import android.util.Log;
 
@@ -27,9 +32,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 
-// TODO add searching via textbox
 // TODO add permissions toggle switch
-// TODO add stop updating toggle switch
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,8 +44,11 @@ public class MainActivity extends AppCompatActivity {
     public Double latVal = 0.0;
 
     // Updating location variables
-    public boolean mRequestingLocationUpdates = true;
+    public boolean mRequestingLocationUpdates = false;
     private LocationCallback mLocationCallback;
+
+    public Switch list_toggle;
+    public Switch permissions_toggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         // Disable the map button
         Button mapButton = (Button)findViewById(R.id.mapButton);
@@ -68,6 +76,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
         };
+
+
+        // Find the switch
+        list_toggle = (Switch)findViewById(R.id.liveUpdateToggle);
+
+        // Add an event listener for the changing of the toggle
+        list_toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    mRequestingLocationUpdates = true;
+                    startLocationUpdates();
+                }
+                else {
+                    mRequestingLocationUpdates = false;
+                    stopLocationUpdates();
+                }
+            }
+        });
     }
 
     @Override
@@ -184,5 +211,24 @@ public class MainActivity extends AppCompatActivity {
         locationText.setText("Longitude: " + Double.toString(longVal).format("%.2f", longVal) + ", Latitude: " + Double.toString(latVal).format("%.2f", latVal));
 
     }
+
+    public void onSearchSubmit(View view){
+
+        // Create the intent
+        Intent searchIntent = new Intent(this, searchResults.class);
+
+        // Get the text input
+        TextView enteredText = (TextView)findViewById(R.id.searchBox);
+
+        // Get the search term
+        String searchTerm = enteredText.getText().toString();
+
+        // Add the search term into the intent
+        searchIntent.putExtra("searchTerm", searchTerm);
+
+        // Begin the intent
+        startActivity(searchIntent);
+    }
+
 
 }
